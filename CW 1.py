@@ -123,6 +123,76 @@ def CDS (phi, N, x, Gamma_phi, rho, u):
     return A
     
 #%%
+
+# define upward differencing model
+
+def UDS (phi, N, x, Gamma_phi, rho, u):
+    
+    A = np.zeros((len(phi),len(phi)))
+    
+    for p in range(0,N): #determine phi between boundaries
+            
+        # boundary conditions
+        
+        if p == 0:
+            
+            #determine delx_E
+            delx_E = x[p+1]-x[p]
+            
+            #determine coeffiients
+            a_E = (Gamma_phi/delx_E) + max((rho*u*(-1)), 0) 
+            
+            a_p = a_E
+            
+            #add coefficients to matrix A
+            A[p][p] = a_p
+            A[p][p+1] = a_E*(-1)
+            
+        elif p == (N-1):
+            
+            #determine delx_W
+            delx_W = x[p] - x[p-1]
+            
+            #determine coeffiients
+            a_W = (Gamma_phi/delx_W) + max((rho*u), 0)
+            
+            a_p = a_W
+            
+            #add coefficients to matrix A
+            A[p][p] = a_p
+            A[p][p-1] = a_W*(-1)
+            
+        else:
+            
+            #determine delx_W, delx_E
+            
+            delx_W = x[p] - x[p-1]
+            
+            delx_E = x[p+1]-x[p]
+            
+            
+            #determine coefficients
+            
+            a_W = (Gamma_phi/delx_W) + max((rho*u), 0)
+            
+            a_W = (Gamma_phi/delx_W) + max((rho*u), 0)
+            
+            a_p = a_E + a_W
+        
+            #add coefficients to matrix A
+            A[p][p] = a_p
+            A[p][p+1] = a_E*(-1)
+            A[p][p-1] = a_W*(-1)
+    
+    return A
+
+#%%
+
+# define power-law differencing model
+
+
+
+#%%
 #fixed parameters
 
 u = 10 # fluid velocity
