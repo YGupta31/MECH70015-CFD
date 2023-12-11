@@ -7,6 +7,8 @@ Created on Sun Dec 10 15:09:13 2023
 #%%
 
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 #%%
 
@@ -267,13 +269,13 @@ def PLDS (P, N, x, G, R, u):
 
 # compare to analytical solution
 
-def Analytical (P, x, G, R, u):
+def Analytical (P, N, x, G, R, u):
     
     #determine global peclet number
     
-    Pe = (R*u*x[len(x)-1])/G
+    Pe = (R*u*x[N-1])/G
     
-    for i in range(1,len(P)-1):
+    for i in range(1,N-1):
         P[i] = P[0] + ((np.exp(x[i]*Pe/x[len(x)-1])-1)/(np.exp(Pe)-1))*(P[len(P)-1]-P[0])
         
         return P
@@ -302,32 +304,87 @@ def NumAcc (P, A, N):
 #%%
 #fixed parameters
 
-u = 10 # fluid velocity
-Gamma_phi = 0.9 #diffusion coefficent
+u = np.linspace(1, 10, 2, endpoint = 'True') # fluid velocity range
+Gamma_phi = 0.6 #diffusion coefficent
 rho = 0.2 # 
-
-#create grid
 L=1 #maximum length of 1-D domain
+#create grid
 
-N = 1000 # number of nodes along 1-D length
 
-delx = L/(N-1)
+N = [11, 51, 101]#, 501, 1001, 5001, 10001, 50001] # number of nodes along 1-D length range
 
-x = np.linspace(0, L, N) #creates grid of even spacing
+#delx = L/(N-1)
 
-phi = np.zeros(len(x))
+#x = np.linspace(0, L, N) #creates grid of even spacing
 
-phi[0] = 100
+#phi = np.zeros(len(x))
 
-phi[len(x)-1] = 20
+#phi[0] = 100
 
-S = np.zeros(len(phi))
+#phi[len(x)-1] = 20
+
+#S = np.zeros(len(phi))
 
 # compute solution
 
-A = CDS(phi, N, x, Gamma_phi, rho, u)      
-print (A)
-    
-phi = TDMA(A, phi, S)
+##CDS
 
-print(phi)
+### change value of u
+
+for v in u:
+    
+#### change value of N
+    delx = []
+    Acc = []
+
+    for n in N:
+        
+        x = np.linspace(0, L, n)
+        
+        phi = np.zeros(len(x))
+
+        phi[0] = 100
+
+        phi[len(x)-1] = 20
+
+        S = np.zeros(len(phi))
+        
+        # find the coefficients
+        
+        A = CDS(phi, n, x, Gamma_phi, rho, v)
+        
+        # solve for phi
+        
+        phi_num = TDMA(A, phi, S)
+        
+        # plot values of phi as contour/gradient
+        plt.plot(x, phi_num)
+        
+        extent = min(x), max(x), min(phi), max(phi)
+        plt.imshow(np.expand_dims(phi, axis = 0), interpolation=None, aspect='auto', cmap = 'viridis', extent = extent)
+        plt.colorbar()
+        plt.show()
+        # determine analytical solution
+        
+        phi_ana = Analytical(phi, n, x, Gamma_phi, rho, v)
+        
+        # plot numerical and analytical solution with global and local peclet number
+        
+        plt.plot(x, phi_ana, color = 'r')
+        plt.plot(x, phi_num, color = 'b')
+        plt.show()
+        
+        # determine acuracy for grid spacing
+        
+        delx = delx + (L/n)
+        Acc = Acc + [NumAcc(phi_num, phi_ana, n)]
+        
+        
+    # plot error against grid spacing delx with convective flux value
+    
+    plt.plot(delx, Acc)
+    plt.show()
+
+##UDS
+
+##PLDS
