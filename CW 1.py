@@ -61,9 +61,9 @@ def TDMA (A, T, d):
 
 # define central difference scheme to return a matrix of coefficients from parameters
 
-def CDS (phi, N, x, Gamma_phi, rho, u):
+def CDS (P, N, x, G, R, u): # P = property , N = nodes, x = Length domain, G = diffusion coefficient, R = density, u = flow velocity 
 
-    A = np.zeros((len(phi),len(phi)))
+    A = np.zeros((len(P),len(P)))
     
     
     for p in range(0,N): #determine phi between boundaries
@@ -73,10 +73,10 @@ def CDS (phi, N, x, Gamma_phi, rho, u):
         if p == 0:
             
             #determine delx_E
-            delx_E = x[p+1]-x[p]
+            delx_E = x[p+1] - x[p]
             
             #determine coeffiients
-            a_E = (Gamma_phi/delx_E) - (rho*u)
+            a_E = (G/delx_E) - (R*u)
             
             a_p = a_E
             
@@ -90,7 +90,7 @@ def CDS (phi, N, x, Gamma_phi, rho, u):
             delx_W = x[p] - x[p-1]
             
             #determine coeffiients
-            a_W = (Gamma_phi/delx_W) + (rho*u)
+            a_W = (G/delx_W) + (R*u)
             
             a_p = a_W
             
@@ -104,14 +104,14 @@ def CDS (phi, N, x, Gamma_phi, rho, u):
             
             delx_W = x[p] - x[p-1]
             
-            delx_E = x[p+1]-x[p]
+            delx_E = x[p+1] - x[p]
             
             
             #determine coefficients
             
-            a_E = (Gamma_phi/delx_E) - (rho*u)
+            a_E = (G/delx_E) - (R*u)
             
-            a_W = (Gamma_phi/delx_W) + (rho*u)
+            a_W = (G/delx_W) + (R*u)
             
             a_p = a_E + a_W
         
@@ -126,9 +126,9 @@ def CDS (phi, N, x, Gamma_phi, rho, u):
 
 # define upward differencing model
 
-def UDS (phi, N, x, Gamma_phi, rho, u):
+def UDS (P, N, x, G, R, u):
     
-    A = np.zeros((len(phi),len(phi)))
+    A = np.zeros((len(P),len(P)))
     
     for p in range(0,N): #determine phi between boundaries
             
@@ -137,10 +137,10 @@ def UDS (phi, N, x, Gamma_phi, rho, u):
         if p == 0:
             
             #determine delx_E
-            delx_E = x[p+1]-x[p]
+            delx_E = x[p+1] - x[p]
             
             #determine coeffiients
-            a_E = (Gamma_phi/delx_E) + max((rho*u*(-1)), 0) 
+            a_E = (G/delx_E) + max((R*u*(-1)), 0) 
             
             a_p = a_E
             
@@ -154,7 +154,7 @@ def UDS (phi, N, x, Gamma_phi, rho, u):
             delx_W = x[p] - x[p-1]
             
             #determine coeffiients
-            a_W = (Gamma_phi/delx_W) + max((rho*u), 0)
+            a_W = (G/delx_W) + max((R*u), 0)
             
             a_p = a_W
             
@@ -168,14 +168,14 @@ def UDS (phi, N, x, Gamma_phi, rho, u):
             
             delx_W = x[p] - x[p-1]
             
-            delx_E = x[p+1]-x[p]
+            delx_E = x[p+1] - x[p]
             
             
             #determine coefficients
             
-            a_W = (Gamma_phi/delx_W) + max((rho*u), 0)
+            a_W = (G/delx_W) + max((R*u), 0)
             
-            a_E = (Gamma_phi/delx_E) + max((rho*u*(-1)), 0)
+            a_E = (G/delx_E) + max((R*u*(-1)), 0)
             
             a_p = a_E + a_W
         
@@ -190,9 +190,9 @@ def UDS (phi, N, x, Gamma_phi, rho, u):
 
 # define power-law differencing model
 
-def PLDS (phi, N, x, Gamma_phi, rho, u):
+def PLDS (P, N, x, G, R, u):
     
-    A = np.zeros((len(phi),len(phi)))
+    A = np.zeros((len(P),len(P)))
     
     for p in range(0,N): #determine phi between boundaries
             
@@ -201,14 +201,14 @@ def PLDS (phi, N, x, Gamma_phi, rho, u):
         if p == 0:
             
             #determine delx_E
-            delx_E = x[p+1]-x[p]
+            delx_E = x[p+1] - x[p]
             
             #determine locl peclet number
             
-            Pe_e = (rho*u*delx_E/Gamma_phi)
+            Pe_e = (R*u*delx_E/G)
             
             #determine coeffiients
-            a_E = (Gamma_phi/delx_E)*max((1-0.1*abs(Pe_e))**5,0) + max((rho*u*(-1)), 0) 
+            a_E = (G/delx_E)*max((1-0.1*abs(Pe_e))**5,0) + max((R*u*(-1)), 0) 
             
             a_p = a_E
             
@@ -223,10 +223,10 @@ def PLDS (phi, N, x, Gamma_phi, rho, u):
             
             #determine locl peclet number
             
-            Pe_w = (rho*u*delx_W/Gamma_phi)
+            Pe_w = (R*u*delx_W/G)
             
             #determine coeffiients
-            a_W = (Gamma_phi/delx_W)*max((1-0.1*abs(Pe_w))**5,0) + max((rho*u), 0)
+            a_W = (G/delx_W)*max((1-0.1*abs(Pe_w))**5,0) + max((R*u), 0)
             
             a_p = a_W
             
@@ -240,19 +240,19 @@ def PLDS (phi, N, x, Gamma_phi, rho, u):
             
             delx_W = x[p] - x[p-1]
             
-            delx_E = x[p+1]-x[p]
+            delx_E = x[p+1] - x[p]
             
             #determine locl peclet number
             
-            Pe_e = (rho*u*delx_E/Gamma_phi)
+            Pe_e = (R*u*delx_E/G)
             
-            Pe_w = (rho*u*delx_W/Gamma_phi)
+            Pe_w = (R*u*delx_W/G)
             
             #determine coefficients
             
-            a_E = (Gamma_phi/delx_E)*max((1-0.1*abs(Pe_e))**5,0) + max((rho*u*(-1)), 0)
+            a_E = (G/delx_E)*max((1-0.1*abs(Pe_e))**5,0) + max((R*u*(-1)), 0)
             
-            a_W = (Gamma_phi/delx_W)*max((1-0.1*abs(Pe_w))**5,0) + max((rho*u), 0)
+            a_W = (G/delx_W)*max((1-0.1*abs(Pe_w))**5,0) + max((R*u), 0)
             
             a_p = a_E + a_W
         
@@ -264,52 +264,19 @@ def PLDS (phi, N, x, Gamma_phi, rho, u):
     return A
 
 #%%
-#fixed parameters
-
-u = 10 # fluid velocity
-Gamma_phi = 0.9 #diffusion coefficent
-rho = 0.2 # 
-
-#create grid
-L=1 #maximum length of 1-D domain
-
-N = 1000 # number of points along 1-D length
-
-delx = L/(N-1)
-
-x = np.linspace(0, L, N) #creates grid of even spacing
-
-phi = np.zeros(len(x))
-
-phi[0] = 100
-
-phi[len(x)-1] = 20
-
-S = np.zeros(len(phi))
-
-# compute solution
-
-A = CDS(phi, N, x, Gamma_phi, rho, u)      
-print (A)
-    
-phi = TDMA(A, phi, S)
-
-print(phi)
-
-#%%
 
 # compare to analytical solution
 
-def Analytical (phi, x, Gamma_phi, rho, u):
+def Analytical (P, x, G, R, u):
     
     #determine global peclet number
     
-    Pe = (rho*u*x[len(x)-1])/Gamma_phi
+    Pe = (R*u*x[len(x)-1])/G
     
-    for i in range(1,len(phi)-1):
-        phi[i] = phi[0] + ((np.exp(x[i]*Pe/x[len(x)-1])-1)/(np.exp(Pe)-1))*(phi[len(phi)-1]-phi[0])
+    for i in range(1,len(P)-1):
+        P[i] = P[0] + ((np.exp(x[i]*Pe/x[len(x)-1])-1)/(np.exp(Pe)-1))*(P[len(P)-1]-P[0])
         
-        return phi
+        return P
     
 #%%
 
@@ -332,3 +299,35 @@ def NumAcc (P, A, N):
     else:
         return (print('ERROR: Dimensions not consistent.'))
         
+#%%
+#fixed parameters
+
+u = 10 # fluid velocity
+Gamma_phi = 0.9 #diffusion coefficent
+rho = 0.2 # 
+
+#create grid
+L=1 #maximum length of 1-D domain
+
+N = 1000 # number of nodes along 1-D length
+
+delx = L/(N-1)
+
+x = np.linspace(0, L, N) #creates grid of even spacing
+
+phi = np.zeros(len(x))
+
+phi[0] = 100
+
+phi[len(x)-1] = 20
+
+S = np.zeros(len(phi))
+
+# compute solution
+
+A = CDS(phi, N, x, Gamma_phi, rho, u)      
+print (A)
+    
+phi = TDMA(A, phi, S)
+
+print(phi)
