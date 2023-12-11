@@ -57,33 +57,6 @@ def TDMA (A, T, d):
     else:
         return print('ERROR: Dimensions not consistent.')
 
-
-
-
-#%%
-#fixed parameters
-
-u = 10 # fluid velocity
-Gamma_phi = 0.1 #diffusion coefficent
-rho = 0.8 # 
-
-#create grid
-L=1 #maximum length of 1-D domain
-
-N = 100 # number of points along 1-D length
-
-delx = L/(N-1)
-
-x = np.linspace(0, L, N) #creates grid of even spacing
-
-phi = np.zeros(len(x))
-
-phi[0] = 100
-
-phi[len(x)-1] = 20
-
-S = np.zeros(len(phi))
-
 #%%
 
 # define central difference scheme to return a matrix of coefficients from parameters
@@ -149,8 +122,31 @@ def CDS (phi, N, x, Gamma_phi, rho, u):
     
     return A
     
-
 #%%
+#fixed parameters
+
+u = 10 # fluid velocity
+Gamma_phi = 0.9 #diffusion coefficent
+rho = 0.2 # 
+
+#create grid
+L=1 #maximum length of 1-D domain
+
+N = 1000 # number of points along 1-D length
+
+delx = L/(N-1)
+
+x = np.linspace(0, L, N) #creates grid of even spacing
+
+phi = np.zeros(len(x))
+
+phi[0] = 100
+
+phi[len(x)-1] = 20
+
+S = np.zeros(len(phi))
+
+# compute solution
 
 A = CDS(phi, N, x, Gamma_phi, rho, u)      
 print (A)
