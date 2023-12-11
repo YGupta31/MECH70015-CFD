@@ -310,6 +310,25 @@ def Analytical (phi, x, Gamma_phi, rho, u):
         phi[i] = phi[0] + ((np.exp(x[i]*Pe/x[len(x)-1])-1)/(np.exp(Pe)-1))*(phi[len(phi)-1]-phi[0])
         
         return phi
+    
 #%%
+
+# determine accuracy of a model
+
+def NumAcc (P, A, N):
+    
+    #check lengths
+    
+    if len(P) == len(A):
         
+        E = 0
+        
+        for i in range(0,len(P)):
+            
+            E = E + abs((P[i]-A[i])/A[i])
+            
+        E = 100*E/N
+        
+    else:
+        return (print('ERROR: Dimensions not consistent.'))
         
