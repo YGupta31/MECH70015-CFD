@@ -151,6 +151,6 @@ S = np.zeros(len(phi))
 A = CDS(phi, N, x, Gamma_phi, rho, u)      
 print (A)
     
-T = TDMA(A, phi, S)
+phi = TDMA(A, phi, S)
 
-print(T)
+print(phi)
