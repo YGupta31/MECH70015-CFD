@@ -295,3 +295,21 @@ print (A)
 phi = TDMA(A, phi, S)
 
 print(phi)
+
+#%%
+
+# compare to analytical solution
+
+def Analytical (phi, x, Gamma_phi, rho, u):
+    
+    #determine global peclet number
+    
+    Pe = (rho*u*x[len(x)-1])/Gamma_phi
+    
+    for i in range(1,len(phi)-1):
+        phi[i] = phi[0] + ((np.exp(x[i]*Pe/x[len(x)-1])-1)/(np.exp(Pe)-1))*(phi[len(phi)-1]-phi[0])
+        
+        return phi
+#%%
+        
+        
