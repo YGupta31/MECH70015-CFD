@@ -175,7 +175,7 @@ def UDS (phi, N, x, Gamma_phi, rho, u):
             
             a_W = (Gamma_phi/delx_W) + max((rho*u), 0)
             
-            a_W = (Gamma_phi/delx_W) + max((rho*u), 0)
+            a_E = (Gamma_phi/delx_E) + max((rho*u*(-1)), 0)
             
             a_p = a_E + a_W
         
@@ -190,7 +190,78 @@ def UDS (phi, N, x, Gamma_phi, rho, u):
 
 # define power-law differencing model
 
-
+def PLDS (phi, N, x, Gamma_phi, rho, u):
+    
+    A = np.zeros((len(phi),len(phi)))
+    
+    for p in range(0,N): #determine phi between boundaries
+            
+        # boundary conditions
+        
+        if p == 0:
+            
+            #determine delx_E
+            delx_E = x[p+1]-x[p]
+            
+            #determine locl peclet number
+            
+            Pe_e = (rho*u*delx_E/Gamma_phi)
+            
+            #determine coeffiients
+            a_E = (Gamma_phi/delx_E)*max((1-0.1*abs(Pe_e))**5,0) + max((rho*u*(-1)), 0) 
+            
+            a_p = a_E
+            
+            #add coefficients to matrix A
+            A[p][p] = a_p
+            A[p][p+1] = a_E*(-1)
+            
+        elif p == (N-1):
+            
+            #determine delx_W
+            delx_W = x[p] - x[p-1]
+            
+            #determine locl peclet number
+            
+            Pe_w = (rho*u*delx_W/Gamma_phi)
+            
+            #determine coeffiients
+            a_W = (Gamma_phi/delx_W)*max((1-0.1*abs(Pe_w))**5,0) + max((rho*u), 0)
+            
+            a_p = a_W
+            
+            #add coefficients to matrix A
+            A[p][p] = a_p
+            A[p][p-1] = a_W*(-1)
+            
+        else:
+            
+            #determine delx_W, delx_E
+            
+            delx_W = x[p] - x[p-1]
+            
+            delx_E = x[p+1]-x[p]
+            
+            #determine locl peclet number
+            
+            Pe_e = (rho*u*delx_E/Gamma_phi)
+            
+            Pe_w = (rho*u*delx_W/Gamma_phi)
+            
+            #determine coefficients
+            
+            a_E = (Gamma_phi/delx_E)*max((1-0.1*abs(Pe_e))**5,0) + max((rho*u*(-1)), 0)
+            
+            a_W = (Gamma_phi/delx_W)*max((1-0.1*abs(Pe_w))**5,0) + max((rho*u), 0)
+            
+            a_p = a_E + a_W
+        
+            #add coefficients to matrix A
+            A[p][p] = a_p
+            A[p][p+1] = a_E*(-1)
+            A[p][p-1] = a_W*(-1)
+    
+    return A
 
 #%%
 #fixed parameters
