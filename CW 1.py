@@ -8,7 +8,9 @@ Created on Sun Dec 10 15:09:13 2023
 
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
+script_dir = os.path.dirname(__file__)
 
 #%%
 
@@ -308,7 +310,7 @@ def NumAcc (P, A, N):
 #%%
 #fixed parameters
 
-u = np.linspace(1, 100, 1, endpoint = 'True') # fluid velocity range
+u = np.linspace(1, 100, 4, endpoint = 'True') # fluid velocity range
 
 Gamma_phi = 0.5 #diffusion coefficent
 
@@ -316,9 +318,11 @@ rho = 0.5 # fluid density
 
 L=1 #maximum length of 1-D domain
 
-N = [11]#, 51, 101, 501, 1001, 5001, 10001, 50001] # number of nodes along 1-D length range
+N = [11, 51, 101, 501, 1001, 5001, 10001, 50001] # number of nodes along 1-D length range
 
-# compute solution
+
+results_dir = os.path.join(script_dir, 'rho=%.2f_'%rho+'gamma=%.2f/'%Gamma_phi)
+os.makedirs(results_dir, exist_ok=True)# compute solution
 
 ##CDS
 
@@ -365,10 +369,11 @@ for v in u:
         extent = min(x), max(x), min(phi_num), max(phi_num)
         pcm = ax.imshow(np.expand_dims(phi_num, axis = 0), interpolation=None, aspect='auto', cmap = 'viridis', extent = extent)
         fig.colorbar(pcm)
-        ax.set_xlabel('%x$')
+        ax.set_xlabel('$x$')
         ax.set_ylabel('$\\phi$')
         ax.set_title('CDS: 1-D Heat Diffusion \n$u = %d$, '%v+'$N = %d$, '%n+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi)
         plt.show()
+        fig.savefig(os.path.join(results_dir,'CDS_1-D_Heat_Diffusion_u=%d_'%v+'N=%d.png'%n))
         
         # determine analytical solution
         phi_ana = Analytical(phi, n, x, Gamma_phi, rho, v)
@@ -384,7 +389,7 @@ for v in u:
         ax.set_ylabel('$\\phi$')
         ax.set_title('CDS: Numerical vs. Analytical \n$u = %d$, '%v+'$N = %d$, '%n+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi+'\nGlobal $Pe = %.3f$, '%Pe_G+ 'Local $Pe = %.3f$' %Pe_x)
         plt.show()
-        
+        fig.savefig(os.path.join(results_dir,'CDS_Numerical_vs_Analytical_u=%d_'%v+'N=%d.png'%n))
         # determine acuracy for grid spacing
         
         delx = delx + [(L/n)]
@@ -396,7 +401,8 @@ for v in u:
     ax.plot(delx, Acc, color = 'g')
     ax.set_xlabel('$\\delta x$')
     ax.set_ylabel('Error (%)')
-    ax.set_title('CDS: Gridspace Error \n$u= %d$' %v+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi)
+    ax.set_title('CDS: Gridspace Error \n$u= %d$, ' %v+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi)
+    fig.savefig(os.path.join(results_dir,'CDS_Gridspace_Error_u=%d.png'%u))
     plt.show()
 
 ##UDS
@@ -444,10 +450,11 @@ for v in u:
         extent = min(x), max(x), min(phi_num), max(phi_num)
         pcm = ax.imshow(np.expand_dims(phi_num, axis = 0), interpolation=None, aspect='auto', cmap = 'viridis', extent = extent)
         fig.colorbar(pcm)
-        ax.set_xlabel('%x$')
+        ax.set_xlabel('$x$')
         ax.set_ylabel('$\\phi$')
         ax.set_title('UDS: 1-D Heat Diffusion \n$u = %d$, '%v+'$N = %d$, '%n+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi)
         plt.show()
+        fig.savefig(os.path.join(results_dir,'UDS_1-D_Heat_Diffusion_u=%d_'%v+'N=%d.png'%n))
         
         # determine analytical solution
         phi_ana = Analytical(phi, n, x, Gamma_phi, rho, v)
@@ -463,7 +470,7 @@ for v in u:
         ax.set_ylabel('$\\phi$')
         ax.set_title('UDS: Numerical vs. Analytical \n$u = %d$, '%v+'$N = %d$, '%n+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi+'\nGlobal $Pe = %.3f$, '%Pe_G+ 'Local $Pe = %.3f$' %Pe_x)
         plt.show()
-        
+        fig.savefig(os.path.join(results_dir,'UDS_Numerical_vs_Analytical_u=%d_'%v+'N=%d.png'%n))
         # determine acuracy for grid spacing
         
         delx = delx + [(L/n)]
@@ -475,7 +482,8 @@ for v in u:
     ax.plot(delx, Acc, color = 'g')
     ax.set_xlabel('$\\delta x$')
     ax.set_ylabel('Error (%)')
-    ax.set_title('UDS: Gridspace Error \n$u= %d$' %v+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi)
+    ax.set_title('UDS: Gridspace Error \n$u= %d$, ' %v+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi)
+    fig.savefig(os.path.join(results_dir,'UDS_Gridspace_Error_u=%d.png'%u))
     plt.show()
 
 ##PLDS
@@ -523,10 +531,11 @@ for v in u:
         extent = min(x), max(x), min(phi_num), max(phi_num)
         pcm = ax.imshow(np.expand_dims(phi_num, axis = 0), interpolation=None, aspect='auto', cmap = 'viridis', extent = extent)
         fig.colorbar(pcm)
-        ax.set_xlabel('%x$')
+        ax.set_xlabel('$x$')
         ax.set_ylabel('$\\phi$')
         ax.set_title('PLDS: 1-D Heat Diffusion \n$u = %d$, '%v+'$N = %d$, '%n+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi)
         plt.show()
+        fig.savefig(os.path.join(results_dir,'PLDS_1-D_Heat_Diffusion_u=%d_'%v+'N=%d.png'%n))
         
         # determine analytical solution
         phi_ana = Analytical(phi, n, x, Gamma_phi, rho, v)
@@ -542,7 +551,7 @@ for v in u:
         ax.set_ylabel('$\\phi$')
         ax.set_title('PLDS: Numerical vs. Analytical \n$u = %d$, '%v+'$N = %d$, '%n+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi+'\nGlobal $Pe = %.3f$, '%Pe_G+ 'Local $Pe = %.3f$' %Pe_x)
         plt.show()
-        
+        fig.savefig(os.path.join(results_dir,'PLDS_Numerical_vs_Analytical_u=%d_'%v+'N=%d.png'%n))
         # determine acuracy for grid spacing
         
         delx = delx + [(L/n)]
@@ -554,5 +563,6 @@ for v in u:
     ax.plot(delx, Acc, color = 'g')
     ax.set_xlabel('$\\delta x$')
     ax.set_ylabel('Error (%)')
-    ax.set_title('pLDS: Gridspace Error \n$u= %d$' %v+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi)
+    ax.set_title('PLDS: Gridspace Error \n$u= %d$, ' %v+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi)
+    fig.savefig(os.path.join(results_dir,'PLDS_Gridspace_Error_u=%d.png'%u))
     plt.show()
