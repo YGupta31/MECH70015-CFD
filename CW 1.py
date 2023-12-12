@@ -308,7 +308,7 @@ def NumAcc (P, A, N):
 #%%
 #fixed parameters
 
-u = np.linspace(1, 100, 4, endpoint = 'True') # fluid velocity range
+u = np.linspace(1, 100, 1, endpoint = 'True') # fluid velocity range
 
 Gamma_phi = 0.5 #diffusion coefficent
 
@@ -316,7 +316,7 @@ rho = 0.5 # fluid density
 
 L=1 #maximum length of 1-D domain
 
-N = [11, 51, 101, 501, 1001, 5001, 10001, 50001] # number of nodes along 1-D length range
+N = [11]#, 51, 101, 501, 1001, 5001, 10001, 50001] # number of nodes along 1-D length range
 
 # compute solution
 
@@ -365,9 +365,9 @@ for v in u:
         extent = min(x), max(x), min(phi_num), max(phi_num)
         pcm = ax.imshow(np.expand_dims(phi_num, axis = 0), interpolation=None, aspect='auto', cmap = 'viridis', extent = extent)
         fig.colorbar(pcm)
-        ax.set_xlabel('x')
-        ax.set_ylabel('phi')
-        ax.set_title('1-D Heat Diffusion')
+        ax.set_xlabel('%x$')
+        ax.set_ylabel('$\\phi$')
+        ax.set_title('1-D Heat Diffusion \n$u = %d$, '%v+'$N = %d$, '%n+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi)
         plt.show()
         
         # determine analytical solution
@@ -380,9 +380,9 @@ for v in u:
        
         ax.plot(x, phi_ana, color = 'r')
         
-        ax.set_xlabel('x')
-        ax.set_ylabel('phi')
-        ax.set_title('Numerical vs. Analytical,')#, 'Global Pe =', Pe_G, 'Local Pe=', Pe_x)
+        ax.set_xlabel('$x$')
+        ax.set_ylabel('$\\phi$')
+        ax.set_title('Numerical vs. Analytical \n$u = %d$, '%v+'$N = %d$, '%n+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi+'\n$Global Pe = %.3f$, '%Pe_G+ '$Local Pe = %.3f$' %Pe_x)
         plt.show()
         
         # determine acuracy for grid spacing
@@ -394,9 +394,9 @@ for v in u:
     # plot error against grid spacing delx with convective flux value
     fig, ax = plt.subplots()
     ax.plot(delx, Acc, color = 'g')
-    ax.set_xlabel('delta x')
+    ax.set_xlabel('$\\delta x$')
     ax.set_ylabel('Error')
-    ax.set_title('Gridspace Error')# u=', v)
+    ax.set_title('Gridspace Error \n$u= %d$' %v)
     plt.show()
 '''
 ##UDS
