@@ -12,9 +12,10 @@ import matplotlib.pyplot as plt
 
 #%%
 
-# define formula to solve a NxN matrix of coefficients, A, and field, T, and source terms, d, of length N
+# define formula to solve a NxN matrix of coefficients, A, and property, T, and source terms, d, of length N
 
 def TDMA (A, T, d):
+    F = np.zeros(len(T))
     
     P = np.zeros(len(T))
     
@@ -23,7 +24,7 @@ def TDMA (A, T, d):
     #check all the lengths are the same.
     if len(A) == len(T) and len(A) == len (d):
         
-        # assume dirihlet boundary conditions
+        # assume dirichlet boundary conditions
         
         # determine coefficients of P and Q
         
@@ -31,16 +32,17 @@ def TDMA (A, T, d):
             
             # at i = 1
             if i == 0:
-                
-                
+                      
                 P[i] = 0
                 Q[i] = T[i]
+                F[i] = T[i]
                 
             # at i = N
             elif i == (len(A)-1):
                 
                 P[i] = 0
                 Q[i] = T[i]
+                F[i] = T[i]
             
             # for middle values of i
             else:
@@ -51,10 +53,10 @@ def TDMA (A, T, d):
         # determine values of field T not including boundary conditions
         for i in range(len(T)-2,0,-1):
             
-            T[i] = P[i]*T[i+1] + Q[i]
+            F[i] = P[i]*F[i+1] + Q[i]
         
         
-        return T
+        return F
     
     else:
         return print('ERROR: Dimensions not consistent.')
@@ -271,14 +273,16 @@ def PLDS (P, N, x, G, R, u):
 
 def Analytical (P, N, x, G, R, u):
     
+    F = np.zeros(len(P))
+    F[0] = P[0]
+    F[len(P)-1] = P[len(P)-1]
     #determine global peclet number
-    
     Pe = (R*u*x[N-1])/G
     
     for i in range(1,N-1):
-        P[i] = P[0] + ((np.exp(x[i]*Pe/x[len(x)-1])-1)/(np.exp(Pe)-1))*(P[len(P)-1]-P[0])
+        F[i] = P[0] + ((np.exp(x[i]*Pe/x[len(x)-1])-1)/(np.exp(Pe)-1))*(P[len(P)-1]-P[0])
         
-        return P
+    return F
     
 #%%
 
@@ -287,16 +291,16 @@ def Analytical (P, N, x, G, R, u):
 def NumAcc (P, A, N):
     
     #check lengths
-    
+    E = 0
     if len(P) == len(A):
         
-        E = 0
         
         for i in range(0,len(P)):
             
-            E = E + abs((P[i]-A[i])/A[i])
+            E += 100*(P[i]-A[i])/(A[i]*N)
             
-        E = 100*E/N
+        #E = 100*E/N
+        return E
         
     else:
         return (print('ERROR: Dimensions not consistent.'))
@@ -304,17 +308,15 @@ def NumAcc (P, A, N):
 #%%
 #fixed parameters
 
-u = np.linspace(1, 10, 2, endpoint = 'True') # fluid velocity range
+u = np.linspace(1, 100, 4, endpoint = 'True') # fluid velocity range
 
-Gamma_phi = 0.6 #diffusion coefficent
+Gamma_phi = 0.5 #diffusion coefficent
 
-rho = 0.2 # fluid density
+rho = 0.5 # fluid density
 
 L=1 #maximum length of 1-D domain
 
-#create grid
-
-N = [11, 51, 101]#, 501, 1001, 5001, 10001, 50001] # number of nodes along 1-D length range
+N = [11, 51, 101, 501, 1001, 5001, 10001, 50001] # number of nodes along 1-D length range
 
 # compute solution
 
@@ -330,6 +332,7 @@ for v in u:
 
     for n in N:
         
+        #create grid
         x = np.linspace(0, L, n)
         
         phi = np.zeros(len(x))
@@ -340,29 +343,46 @@ for v in u:
 
         S = np.zeros(len(phi))
         
+        #determine peclet numbers
+        
+        #global peclet
+        Pe_G = (rho*u*L)/Gamma_phi
+        
+        #local peclet
+        Pe_x = (rho*u*(L/n))/Gamma_phi
+        
         # find the coefficients
         
         A = CDS(phi, n, x, Gamma_phi, rho, v)
         
         # solve for phi
-        
         phi_num = TDMA(A, phi, S)
         
         # plot values of phi as contour/gradient
-        plt.plot(x, phi_num)
+        fig, ax = plt.subplots()
+        ax.plot(x, phi_num)
         
-        extent = min(x), max(x), min(phi), max(phi)
-        plt.imshow(np.expand_dims(phi, axis = 0), interpolation=None, aspect='auto', cmap = 'viridis', extent = extent)
-        plt.colorbar()
+        extent = min(x), max(x), min(phi_num), max(phi_num)
+        pcm = ax.imshow(np.expand_dims(phi_num, axis = 0), interpolation=None, aspect='auto', cmap = 'viridis', extent = extent)
+        fig.colorbar(pcm)
+        ax.set_xlabel('x')
+        ax.set_ylabel('phi')
+        ax.set_title('1-D Heat Diffusion')
         plt.show()
-        # determine analytical solution
         
+        # determine analytical solution
         phi_ana = Analytical(phi, n, x, Gamma_phi, rho, v)
         
         # plot numerical and analytical solution with global and local peclet number
+        fig, ax = plt.subplots()
+        ax.scatter(x, phi_num, color = 'b')
+        ax.plot(x,phi_num, color = 'b', linestyle = 'dashed')
+       
+        ax.plot(x, phi_ana, color = 'r')
         
-        plt.plot(x, phi_ana, color = 'r')
-        plt.plot(x, phi_num, color = 'b')
+        ax.set_xlabel('x')
+        ax.set_ylabel('phi')
+        ax.set_title('Numerical vs. Analytical,')#, 'Global Pe =', Pe_G, 'Local Pe=', Pe_x)
         plt.show()
         
         # determine acuracy for grid spacing
@@ -372,10 +392,13 @@ for v in u:
         
         
     # plot error against grid spacing delx with convective flux value
-    
-    plt.plot(delx, Acc)
+    fig, ax = plt.subplots()
+    ax.plot(delx, Acc, color = 'g')
+    ax.set_xlabel('delta x')
+    ax.set_ylabel('Error')
+    ax.set_title('Gridspace Error')# u=', v)
     plt.show()
-
+'''
 ##UDS
 
 ### change value of u
@@ -491,3 +514,4 @@ for v in u:
     
     plt.plot(delx, Acc)
     plt.show()
+    '''
