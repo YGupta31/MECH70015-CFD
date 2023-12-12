@@ -367,7 +367,7 @@ for v in u:
         fig.colorbar(pcm)
         ax.set_xlabel('%x$')
         ax.set_ylabel('$\\phi$')
-        ax.set_title('1-D Heat Diffusion \n$u = %d$, '%v+'$N = %d$, '%n+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi)
+        ax.set_title('CDS: 1-D Heat Diffusion \n$u = %d$, '%v+'$N = %d$, '%n+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi)
         plt.show()
         
         # determine analytical solution
@@ -382,7 +382,7 @@ for v in u:
         
         ax.set_xlabel('$x$')
         ax.set_ylabel('$\\phi$')
-        ax.set_title('Numerical vs. Analytical \n$u = %d$, '%v+'$N = %d$, '%n+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi+'\n$Global Pe = %.3f$, '%Pe_G+ '$Local Pe = %.3f$' %Pe_x)
+        ax.set_title('CDS: Numerical vs. Analytical \n$u = %d$, '%v+'$N = %d$, '%n+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi+'\nGlobal $Pe = %.3f$, '%Pe_G+ 'Local $Pe = %.3f$' %Pe_x)
         plt.show()
         
         # determine acuracy for grid spacing
@@ -395,10 +395,10 @@ for v in u:
     fig, ax = plt.subplots()
     ax.plot(delx, Acc, color = 'g')
     ax.set_xlabel('$\\delta x$')
-    ax.set_ylabel('Error')
-    ax.set_title('Gridspace Error \n$u= %d$' %v)
+    ax.set_ylabel('Error (%)')
+    ax.set_title('CDS: Gridspace Error \n$u= %d$' %v+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi)
     plt.show()
-'''
+
 ##UDS
 
 ### change value of u
@@ -411,6 +411,7 @@ for v in u:
 
     for n in N:
         
+        #create grid
         x = np.linspace(0, L, n)
         
         phi = np.zeros(len(x))
@@ -421,29 +422,46 @@ for v in u:
 
         S = np.zeros(len(phi))
         
+        #determine peclet numbers
+        
+        #global peclet
+        Pe_G = (rho*u*L)/Gamma_phi
+        
+        #local peclet
+        Pe_x = (rho*u*(L/n))/Gamma_phi
+        
         # find the coefficients
         
         A = UDS(phi, n, x, Gamma_phi, rho, v)
         
         # solve for phi
-        
         phi_num = TDMA(A, phi, S)
         
         # plot values of phi as contour/gradient
-        plt.plot(x, phi_num)
+        fig, ax = plt.subplots()
+        ax.plot(x, phi_num)
         
-        extent = min(x), max(x), min(phi), max(phi)
-        plt.imshow(np.expand_dims(phi, axis = 0), interpolation=None, aspect='auto', cmap = 'viridis', extent = extent)
-        plt.colorbar()
+        extent = min(x), max(x), min(phi_num), max(phi_num)
+        pcm = ax.imshow(np.expand_dims(phi_num, axis = 0), interpolation=None, aspect='auto', cmap = 'viridis', extent = extent)
+        fig.colorbar(pcm)
+        ax.set_xlabel('%x$')
+        ax.set_ylabel('$\\phi$')
+        ax.set_title('UDS: 1-D Heat Diffusion \n$u = %d$, '%v+'$N = %d$, '%n+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi)
         plt.show()
-        # determine analytical solution
         
+        # determine analytical solution
         phi_ana = Analytical(phi, n, x, Gamma_phi, rho, v)
         
         # plot numerical and analytical solution with global and local peclet number
+        fig, ax = plt.subplots()
+        ax.scatter(x, phi_num, color = 'b')
+        ax.plot(x,phi_num, color = 'b', linestyle = 'dashed')
+       
+        ax.plot(x, phi_ana, color = 'r')
         
-        plt.plot(x, phi_ana, color = 'r')
-        plt.plot(x, phi_num, color = 'b')
+        ax.set_xlabel('$x$')
+        ax.set_ylabel('$\\phi$')
+        ax.set_title('UDS: Numerical vs. Analytical \n$u = %d$, '%v+'$N = %d$, '%n+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi+'\nGlobal $Pe = %.3f$, '%Pe_G+ 'Local $Pe = %.3f$' %Pe_x)
         plt.show()
         
         # determine acuracy for grid spacing
@@ -453,8 +471,11 @@ for v in u:
         
         
     # plot error against grid spacing delx with convective flux value
-    
-    plt.plot(delx, Acc)
+    fig, ax = plt.subplots()
+    ax.plot(delx, Acc, color = 'g')
+    ax.set_xlabel('$\\delta x$')
+    ax.set_ylabel('Error (%)')
+    ax.set_title('UDS: Gridspace Error \n$u= %d$' %v+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi)
     plt.show()
 
 ##PLDS
@@ -469,6 +490,7 @@ for v in u:
 
     for n in N:
         
+        #create grid
         x = np.linspace(0, L, n)
         
         phi = np.zeros(len(x))
@@ -479,29 +501,46 @@ for v in u:
 
         S = np.zeros(len(phi))
         
+        #determine peclet numbers
+        
+        #global peclet
+        Pe_G = (rho*u*L)/Gamma_phi
+        
+        #local peclet
+        Pe_x = (rho*u*(L/n))/Gamma_phi
+        
         # find the coefficients
         
         A = PLDS(phi, n, x, Gamma_phi, rho, v)
         
         # solve for phi
-        
         phi_num = TDMA(A, phi, S)
         
         # plot values of phi as contour/gradient
-        plt.plot(x, phi_num)
+        fig, ax = plt.subplots()
+        ax.plot(x, phi_num)
         
-        extent = min(x), max(x), min(phi), max(phi)
-        plt.imshow(np.expand_dims(phi, axis = 0), interpolation=None, aspect='auto', cmap = 'viridis', extent = extent)
-        plt.colorbar()
+        extent = min(x), max(x), min(phi_num), max(phi_num)
+        pcm = ax.imshow(np.expand_dims(phi_num, axis = 0), interpolation=None, aspect='auto', cmap = 'viridis', extent = extent)
+        fig.colorbar(pcm)
+        ax.set_xlabel('%x$')
+        ax.set_ylabel('$\\phi$')
+        ax.set_title('PLDS: 1-D Heat Diffusion \n$u = %d$, '%v+'$N = %d$, '%n+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi)
         plt.show()
-        # determine analytical solution
         
+        # determine analytical solution
         phi_ana = Analytical(phi, n, x, Gamma_phi, rho, v)
         
         # plot numerical and analytical solution with global and local peclet number
+        fig, ax = plt.subplots()
+        ax.scatter(x, phi_num, color = 'b')
+        ax.plot(x,phi_num, color = 'b', linestyle = 'dashed')
+       
+        ax.plot(x, phi_ana, color = 'r')
         
-        plt.plot(x, phi_ana, color = 'r')
-        plt.plot(x, phi_num, color = 'b')
+        ax.set_xlabel('$x$')
+        ax.set_ylabel('$\\phi$')
+        ax.set_title('PLDS: Numerical vs. Analytical \n$u = %d$, '%v+'$N = %d$, '%n+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi+'\nGlobal $Pe = %.3f$, '%Pe_G+ 'Local $Pe = %.3f$' %Pe_x)
         plt.show()
         
         # determine acuracy for grid spacing
@@ -511,7 +550,9 @@ for v in u:
         
         
     # plot error against grid spacing delx with convective flux value
-    
-    plt.plot(delx, Acc)
+    fig, ax = plt.subplots()
+    ax.plot(delx, Acc, color = 'g')
+    ax.set_xlabel('$\\delta x$')
+    ax.set_ylabel('Error (%)')
+    ax.set_title('pLDS: Gridspace Error \n$u= %d$' %v+'$\\rho = %.2f$, '%rho+'$\\Gamma_\\phi = %.2f$' %Gamma_phi)
     plt.show()
-    '''
